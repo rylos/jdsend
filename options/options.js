@@ -25,7 +25,9 @@ async function init() {
   }
 }
 
-deviceSelect.addEventListener("change", () => saveSettings({ device: deviceSelect.value }));
+deviceSelect.addEventListener("change", () =>
+  saveSettings({ device: deviceSelect.value, deviceName: deviceSelect.selectedOptions[0]?.textContent ?? "" }),
+);
 prioritySelect.addEventListener("change", () => saveSettings({ priority: prioritySelect.value }));
 folderInput.addEventListener("change", () => saveSettings({ folder: folderInput.value.trim() }));
 autostartInput.addEventListener("change", () => saveSettings({ autostart: autostartInput.checked }));

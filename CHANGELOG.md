@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.2 — 2026-09-13
+
+- The quick context menu entry is named after the JDownloader it sends to, *Send to jd2@home*, and follows the choice made in the popup or the options; so does the toolbar tooltip after a send.
+
 ## 1.3.1 — 2026-09-13
 
 - Click'n'Load support is gone again, and with it the content script on every site and the redirect rule: jdsend runs no code on the pages you visit.

@@ -7,7 +7,7 @@ if (typeof importScripts === "function") importScripts("js/myjd.js");
 const ext = globalThis.browser ?? globalThis.chrome;
 const client = new myjd.Client(myjd.storageStore(ext.storage.local));
 
-const DEFAULT_SETTINGS = { device: "", autostart: true, priority: "DEFAULT", folder: "" };
+const DEFAULT_SETTINGS = { device: "", deviceName: "", autostart: true, priority: "DEFAULT", folder: "" };
 
 async function loadSettings() {
   const { settings } = await ext.storage.local.get("settings");
@@ -30,7 +30,7 @@ function installMenus() {
   installing ??= (async () => {
     try {
       await ext.contextMenus.removeAll();
-      ext.contextMenus.create({ id: MENU_QUICK, title: "Send to JDownloader now", contexts: CONTEXTS });
+      ext.contextMenus.create({ id: MENU_QUICK, title: quickTitle(await loadSettings()), contexts: CONTEXTS });
       ext.contextMenus.create({ id: MENU_DIALOG, title: "Send with options…", contexts: CONTEXTS });
     } finally {
       installing = null;
@@ -41,6 +41,17 @@ function installMenus() {
 
 ext.runtime.onInstalled.addListener(installMenus);
 ext.runtime.onStartup.addListener(installMenus);
+
+/** The quick entry names the JDownloader it sends to, as soon as one is chosen. */
+function quickTitle(settings) {
+  return settings.device && settings.deviceName ? `Send to ${settings.deviceName}` : "Send to JDownloader";
+}
+
+ext.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local" || !changes.settings) return;
+  const settings = { ...DEFAULT_SETTINGS, ...changes.settings.newValue };
+  ext.contextMenus.update(MENU_QUICK, { title: quickTitle(settings) }).catch?.(() => {});
+});
 
 /** The most specific thing under the pointer: a link, then media, then selected text, then the page. */
 function whatWasClicked(info) {
@@ -106,7 +117,7 @@ async function quickSend(text, tab) {
   if (!settings.device) return openDialog(text, tab);
   try {
     await send(settings.device, text, { ...settings, sourceUrl: tab?.url });
-    flash("✓", "#16a34a", "Sent to JDownloader");
+    flash("✓", "#16a34a", `Sent to ${settings.deviceName || "JDownloader"}`);
   } catch (e) {
     flash("!", "#dc2626", `jdsend: ${myjd.explain(e)}`);
   }

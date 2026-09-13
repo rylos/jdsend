@@ -2,7 +2,7 @@
 
 const ext = globalThis.browser ?? globalThis.chrome;
 
-const DEFAULT_SETTINGS = { device: "", autostart: true, priority: "DEFAULT", folder: "" };
+const DEFAULT_SETTINGS = { device: "", deviceName: "", autostart: true, priority: "DEFAULT", folder: "" };
 
 async function loadSettings() {
   const { settings } = await ext.storage.local.get("settings");

@@ -218,7 +218,7 @@ async function refreshDevices() {
     setOnline(!!mine, mine ? "Connected" : "No device");
     btnSendTab.disabled = btnSendOptions.disabled = btnContainer.disabled = btnStatus.disabled = !mine;
     // The first device becomes the default when none was chosen yet.
-    if (!settings.device && mine) await saveSettings({ device: mine.id });
+    if (!settings.device && mine) await saveSettings({ device: mine.id, deviceName: mine.name });
     if (!mine) closeStatus();
   } catch (e) {
     setOnline(false);
@@ -258,7 +258,7 @@ loginForm.addEventListener("submit", async (event) => {
 });
 
 deviceSelect.addEventListener("change", () => {
-  saveSettings({ device: deviceSelect.value });
+  saveSettings({ device: deviceSelect.value, deviceName: deviceSelect.selectedOptions[0]?.textContent ?? "" });
   if (!overviewBox.hidden) openStatus();
 });
 
