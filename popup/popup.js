@@ -20,6 +20,7 @@ const packagesList = document.getElementById("packages");
 const btnToggle = document.getElementById("btn-toggle");
 const btnStop = document.getElementById("btn-stop");
 const btnConfirm = document.getElementById("btn-confirm");
+const btnStatus = document.getElementById("btn-status");
 
 // --- the glance at the device -------------------------------------------------
 
@@ -101,7 +102,6 @@ function renderOverview(o) {
   btnStop.disabled = !(o.state === "RUNNING" || o.state === "PAUSE");
   btnConfirm.hidden = o.grabber.links === 0;
   btnConfirm.textContent = `Confirm ${o.grabber.links} in LinkGrabber`;
-  overviewBox.hidden = false;
 }
 
 async function glance() {
@@ -111,7 +111,7 @@ async function glance() {
     renderOverview(await ask("overview", { device: deviceSelect.value }));
     hideNote(mainNote);
   } catch (e) {
-    overviewBox.hidden = true;
+    closeStatus();
     showNote(mainNote, e.message);
   } finally {
     glancing = false;
@@ -128,6 +128,28 @@ function stopGlancing() {
   clearInterval(glanceTimer);
   glanceTimer = null;
 }
+
+// The status box is closed when the popup opens, so the popup appears in
+// its final shape at once; asking the device starts only when someone
+// wants to see it.
+function openStatus() {
+  speedEl.textContent = "—";
+  countsEl.textContent = "Asking…";
+  packagesList.replaceChildren();
+  btnToggle.disabled = btnStop.disabled = true;
+  btnConfirm.hidden = true;
+  overviewBox.hidden = false;
+  btnStatus.textContent = "Hide status";
+  startGlancing();
+}
+
+function closeStatus() {
+  stopGlancing();
+  overviewBox.hidden = true;
+  btnStatus.textContent = "Show status";
+}
+
+btnStatus.addEventListener("click", () => (overviewBox.hidden ? openStatus() : closeStatus()));
 
 async function act(button, action) {
   button.disabled = true;
@@ -176,15 +198,14 @@ async function refreshDevices() {
     const devices = await fillDevices(deviceSelect, settings.device);
     const mine = devices.find((d) => d.id === deviceSelect.value);
     setOnline(!!mine, mine ? "Connected" : "No device");
-    btnSendTab.disabled = btnSendOptions.disabled = !mine;
+    btnSendTab.disabled = btnSendOptions.disabled = btnStatus.disabled = !mine;
     // The first device becomes the default when none was chosen yet.
     if (!settings.device && mine) await saveSettings({ device: mine.id });
-    if (mine) startGlancing();
-    else overviewBox.hidden = true;
+    if (!mine) closeStatus();
   } catch (e) {
     setOnline(false);
     showNote(mainNote, e.message);
-    btnSendTab.disabled = btnSendOptions.disabled = true;
+    btnSendTab.disabled = btnSendOptions.disabled = btnStatus.disabled = true;
   }
 }
 
@@ -221,8 +242,7 @@ loginForm.addEventListener("submit", async (event) => {
 
 deviceSelect.addEventListener("change", () => {
   saveSettings({ device: deviceSelect.value });
-  overviewBox.hidden = true;
-  startGlancing();
+  if (!overviewBox.hidden) openStatus();
 });
 
 async function sendTab(withOptions) {
@@ -256,7 +276,7 @@ btnSendTab.addEventListener("click", () => sendTab(false));
 btnSendOptions.addEventListener("click", () => sendTab(true));
 btnOptions.addEventListener("click", () => ext.runtime.openOptionsPage());
 btnLogout.addEventListener("click", async () => {
-  stopGlancing();
+  closeStatus();
   await ask("logout");
   emailInput.value = "";
   show("login");

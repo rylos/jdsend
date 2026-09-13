@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 — 2026-09-13
+
+- The popup opens in its final shape: the status box is closed until *Show status* is pressed, and the device is asked only from then on.
+- Release notes come from the tag itself.
+
 ## 1.1.0 — 2026-09-13
 
 - The popup shows the JDownloader at a glance: speed, the unfinished packages with their progress, what waits in the LinkGrabber; Start/Pause/Stop and *Confirm LinkGrabber* buttons. It asks the device every two seconds while open, and not at all otherwise.

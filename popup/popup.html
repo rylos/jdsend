@@ -43,10 +43,17 @@
 
       <p id="main-note" class="note" hidden></p>
 
+      <div class="stack">
+        <button type="button" id="btn-send-tab" class="btn-primary">Send this tab</button>
+        <button type="button" id="btn-send-options" class="btn-secondary">Send this tab with options…</button>
+        <button type="button" id="btn-status" class="btn-secondary" disabled>Show status</button>
+      </div>
+
+      <!-- Opened by the button above; the popup keeps its shape until then. -->
       <section id="overview" class="overview" hidden>
         <div class="stats">
           <span id="speed" class="speed">—</span>
-          <span id="counts" class="muted"></span>
+          <span id="counts" class="muted">Asking…</span>
         </div>
         <ul id="packages" class="packages"></ul>
         <div class="controls">
@@ -55,11 +62,6 @@
           <button type="button" id="btn-confirm" class="btn-secondary btn-small" hidden>Confirm LinkGrabber</button>
         </div>
       </section>
-
-      <div class="stack">
-        <button type="button" id="btn-send-tab" class="btn-primary">Send this tab</button>
-        <button type="button" id="btn-send-options" class="btn-secondary">Send this tab with options…</button>
-      </div>
 
       <hr />
       <footer>
