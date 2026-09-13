@@ -42,9 +42,42 @@ footer .links {
   margin-top: 8px;
 }
 
-/* The glance at the device */
-.overview {
+/* The glance at the device, folded under a disclosure row */
+.disclosure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
   margin-top: 12px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.disclosure:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.chevron {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid currentColor;
+  transition: transform 160ms ease;
+}
+
+.disclosure[aria-expanded="true"] .chevron {
+  transform: rotate(90deg);
+}
+
+.overview {
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -109,6 +142,10 @@ footer .links {
   height: 100%;
   background: var(--muted);
   transition: width 400ms ease;
+}
+
+.package.done .bar > span {
+  background: var(--success);
 }
 
 .package.running .bar > span {

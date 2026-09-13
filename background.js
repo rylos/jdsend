@@ -137,6 +137,12 @@ const PACKAGE_FIELDS = {
   startAt: 0,
 };
 
+function rank(p) {
+  if (p.running) return 0;
+  if (p.finished) return 3;
+  return p.enabled ? 1 : 2;
+}
+
 /**
  * What the popup shows while it is open: the download controller's state
  * and speed, the packages that are not finished, and what waits in the
@@ -155,12 +161,11 @@ async function overview(device) {
   return {
     state: typeof state === "string" ? state : "UNKNOWN",
     speed: typeof speed === "number" ? speed : 0,
-    finished: all.filter((p) => p.finished).length,
+    bytesLoaded: all.reduce((n, p) => n + (p.bytesLoaded ?? 0), 0),
+    bytesTotal: all.reduce((n, p) => n + (p.bytesTotal ?? 0), 0),
+    // Running first, then what is waiting, then what is disabled, then what is done.
     packages: all
-      .filter((p) => !p.finished)
-      // Running first, then what is waiting, then what is disabled.
-      .sort((a, b) => Number(!!b.running) - Number(!!a.running) || Number(!!b.enabled) - Number(!!a.enabled))
-      .map(({ uuid, name, bytesLoaded, bytesTotal, eta, running, enabled, speed, status, childCount }) => ({
+      .map(({ uuid, name, bytesLoaded, bytesTotal, eta, running, enabled, finished, speed, childCount }) => ({
         uuid,
         name,
         bytesLoaded: bytesLoaded ?? 0,
@@ -168,10 +173,11 @@ async function overview(device) {
         eta: eta ?? -1,
         running: !!running,
         enabled: enabled !== false,
+        finished: !!finished,
         speed: speed ?? 0,
-        status: status ?? "",
         childCount: childCount ?? 0,
-      })),
+      }))
+      .sort((a, b) => rank(a) - rank(b)),
     grabber: {
       packages: Array.isArray(grabber) ? grabber.map((p) => p.uuid) : [],
       links: Array.isArray(grabber) ? grabber.reduce((n, p) => n + (p.childCount ?? 0), 0) : 0,

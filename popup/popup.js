@@ -51,7 +51,7 @@ function duration(seconds) {
 
 function renderPackage(p) {
   const li = document.createElement("li");
-  li.className = `package${p.running ? " running" : ""}${p.enabled ? "" : " disabled"}`;
+  li.className = `package${p.running ? " running" : ""}${p.finished ? " done" : ""}${p.enabled || p.finished ? "" : " disabled"}`;
   const name = document.createElement("span");
   name.className = "name";
   name.textContent = p.name;
@@ -61,6 +61,8 @@ function renderPackage(p) {
   const pct = p.bytesTotal > 0 ? Math.floor((p.bytesLoaded / p.bytesTotal) * 100) : 0;
   if (p.running) {
     detail.textContent = [`${pct}%`, p.speed > 0 ? `${bytes(p.speed)}/s` : "", duration(p.eta)].filter(Boolean).join(" · ");
+  } else if (p.finished) {
+    detail.textContent = `done · ${bytes(p.bytesTotal)}`;
   } else if (!p.enabled) {
     detail.textContent = "disabled";
   } else {
@@ -78,21 +80,32 @@ function renderPackage(p) {
 function renderOverview(o) {
   lastState = o.state;
   const running = o.packages.filter((p) => p.running).length;
-  speedEl.textContent = o.state === "RUNNING" || running > 0 ? `↓ ${bytes(o.speed)}/s` : o.state === "PAUSE" ? "Paused" : "Idle";
+  const finished = o.packages.filter((p) => p.finished).length;
+  const waiting = o.packages.length - running - finished;
+  speedEl.textContent =
+    o.state === "RUNNING" || running > 0
+      ? `↓ ${bytes(o.speed)}/s`
+      : o.state === "PAUSE"
+        ? "Paused"
+        : o.packages.length === 0
+          ? "Empty"
+          : waiting === 0
+            ? "All done"
+            : "Idle";
   const parts = [];
   if (running) parts.push(`${running} running`);
-  const waiting = o.packages.length - running;
   if (waiting) parts.push(`${waiting} waiting`);
-  if (o.finished) parts.push(`${o.finished} done`);
+  if (finished) parts.push(`${finished} done`);
+  if (o.bytesTotal > 0) parts.push(waiting || running ? `${bytes(o.bytesLoaded)} of ${bytes(o.bytesTotal)}` : bytes(o.bytesTotal));
   if (o.grabber.links) parts.push(`${o.grabber.links} in LinkGrabber`);
   else if (o.grabber.collecting) parts.push("LinkGrabber busy");
-  countsEl.textContent = parts.join(" · ") || "Nothing queued";
+  countsEl.textContent = parts.join(" · ") || "Nothing in the download list";
 
   packagesList.replaceChildren(...o.packages.slice(0, SHOWN).map(renderPackage));
   if (o.packages.length > SHOWN) {
     const more = document.createElement("li");
     more.className = "muted";
-    more.textContent = `and ${o.packages.length - SHOWN} more`;
+    more.textContent = `and ${o.packages.length - SHOWN} more in the list`;
     packagesList.append(more);
   }
 
@@ -139,14 +152,14 @@ function openStatus() {
   btnToggle.disabled = btnStop.disabled = true;
   btnConfirm.hidden = true;
   overviewBox.hidden = false;
-  btnStatus.textContent = "Hide status";
+  btnStatus.setAttribute("aria-expanded", "true");
   startGlancing();
 }
 
 function closeStatus() {
   stopGlancing();
   overviewBox.hidden = true;
-  btnStatus.textContent = "Show status";
+  btnStatus.setAttribute("aria-expanded", "false");
 }
 
 btnStatus.addEventListener("click", () => (overviewBox.hidden ? openStatus() : closeStatus()));

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2 — 2026-09-13
+
+- The status box folds out under a *Status* row with a chevron instead of a button.
+- Finished packages are listed too, marked done with their size, and the summary says how much of the list is loaded; an empty list and an all-done list say so.
+
 ## 1.1.1 — 2026-09-13
 
 - The popup opens in its final shape: the status box is closed until *Show status* is pressed, and the device is asked only from then on.
