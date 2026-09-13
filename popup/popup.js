@@ -278,7 +278,7 @@ async function sendTab(withOptions) {
   hideNote(mainNote);
   const tab = await currentTab();
   if (!tab) {
-    showNote(mainNote, "This tab has no address to send.");
+    showNote(mainNote, "This page has no address to send.");
     return;
   }
   if (withOptions) {
@@ -297,7 +297,7 @@ async function sendTab(withOptions) {
     showNote(mainNote, e.message);
   } finally {
     btnSendTab.disabled = false;
-    btnSendTab.textContent = "Send this tab";
+    btnSendTab.textContent = "Send this page";
   }
 }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1 — 2026-09-13
+
+- Popup wording: *Send this page*, *Send this page with options…*, *Add links or a container…*.
+
 ## 1.4.0 — 2026-09-13
 
 - Option: remember whether *Status* is unfolded in the popup. Off by default; on, the popup opens the way it was left, in its final shape from the first paint.

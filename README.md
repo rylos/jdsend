@@ -2,7 +2,7 @@
 
 Send links to [JDownloader](https://jdownloader.org/) from the browser, through My.JDownloader.
 
-Right-click a link, an image, a video, some selected text or the page itself and pick **Send to jd2@home** — the entry is named after the JDownloader chosen in the options — and it goes to your JDownloader straight away, wherever it runs, and the toolbar icon says whether it arrived. **Send with options…** opens a small form first, for when the package, the folder, the priority or a password matter. The toolbar button sends the current tab; so does `Alt+Shift+J`.
+Right-click a link, an image, a video, some selected text or the page itself and pick **Send to jd2@home** — the entry is named after the JDownloader chosen in the options — and it goes to your JDownloader straight away, wherever it runs, and the toolbar icon says whether it arrived. **Send with options…** opens a small form first, for when the package, the folder, the priority or a password matter. The toolbar button sends the current page; so does `Alt+Shift+J`.
 
 Unfold *Status* in the popup for a glance at the JDownloader: speed, what is downloading and how far along, what waits in the LinkGrabber, with Start/Pause/Stop and a button to confirm the whole LinkGrabber. It asks only while the popup is open.
 
@@ -22,7 +22,7 @@ Then click the toolbar icon, sign in with your My.JDownloader account and, if yo
 
 ## Links typed or pasted, and container files
 
-*Send links or a container…* in the popup opens the form empty: paste links or any text with links in it, and/or pick a `.dlc`, `.ccf` or `.rsdf` — or drop one on the window — and it goes to JDownloader whole. The same form is behind *Send with options…*, so a container can travel with a page's links too.
+*Add links or a container…* in the popup opens the form empty: paste links or any text with links in it, and/or pick a `.dlc`, `.ccf` or `.rsdf` — or drop one on the window — and it goes to JDownloader whole. The same form is behind *Send with options…*, so a container can travel with a page's links too.
 
 ## Options
 
