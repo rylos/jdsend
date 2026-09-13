@@ -18,7 +18,7 @@ mkdir -p dist
 stage() {
     local dir=$1
     mkdir -p "$dir"
-    cp -r background.js js css popup dialog options cnl rules LICENSE "$dir/"
+    cp -r background.js js css popup dialog options LICENSE "$dir/"
     mkdir -p "$dir/icons"
     cp icons/*.png "$dir/icons/"
 }
@@ -28,7 +28,7 @@ cp manifest.json dist/chrome/
 (cd dist/chrome && zip -qr "../jdsend-${version}-chrome.zip" .)
 
 stage dist/firefox
-jq '.background = { "scripts": ["js/myjd.js", "js/cnl.js", "background.js"] }
+jq '.background = { "scripts": ["js/myjd.js", "background.js"] }
     | .browser_specific_settings = {
         "gecko": {
           "id": "jdsend@rylos.github.io",

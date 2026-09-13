@@ -2,7 +2,7 @@
 // Chrome, an event page in Firefox. Everything visible (popup, dialog,
 // options) asks it through runtime messages.
 
-if (typeof importScripts === "function") importScripts("js/myjd.js", "js/cnl.js");
+if (typeof importScripts === "function") importScripts("js/myjd.js");
 
 const ext = globalThis.browser ?? globalThis.chrome;
 const client = new myjd.Client(myjd.storageStore(ext.storage.local));
@@ -107,30 +107,6 @@ async function quickSend(text, tab) {
   try {
     await send(settings.device, text, { ...settings, sourceUrl: tab?.url });
     flash("✓", "#16a34a", "Sent to JDownloader");
-  } catch (e) {
-    flash("!", "#dc2626", `jdsend: ${myjd.explain(e)}`);
-  }
-}
-
-/**
- * A Click'n'Load post caught on a page. `addcrypted2` carries the links
- * encrypted, `add` carries them plain; both may name a package, a source
- * and archive passwords. From there it is a quick send.
- */
-async function clickNLoad(kind, fields, source) {
-  const settings = await loadSettings();
-  try {
-    const text = kind === "addcrypted2" ? await cnl.decrypt(fields.crypted ?? "", fields.jk ?? "") : String(fields.urls ?? "");
-    if (!text) throw new Error("Click'n'Load: no links in the post.");
-    const options = {
-      ...settings,
-      packageName: fields.package || fields.packageName || "",
-      extractPassword: fields.passwords || "",
-      sourceUrl: fields.source || source,
-    };
-    if (!settings.device) return openDialog(text, { url: options.sourceUrl });
-    await send(settings.device, text, options);
-    flash("✓", "#16a34a", "Click'n'Load sent to JDownloader");
   } catch (e) {
     flash("!", "#dc2626", `jdsend: ${myjd.explain(e)}`);
   }
@@ -304,8 +280,6 @@ async function handle(msg) {
       return sendContainer(msg.device, msg.kind, msg.content);
     case "dialog":
       return openDialog(msg.text, msg.tab, { container: !!msg.container });
-    case "cnl":
-      return clickNLoad(msg.kind, msg.fields ?? {}, msg.source);
     case "overview":
       return overview(msg.device);
     case "control":

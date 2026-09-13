@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1 — 2026-09-13
+
+- Click'n'Load support is gone again, and with it the content script on every site and the redirect rule: jdsend runs no code on the pages you visit.
+- The popup's third button is *Send links or a container…*: the form opens empty, for links pasted by hand, a container file, or both.
+
 ## 1.3.0 — 2026-09-13
 
 - Click'n'Load works with a JDownloader that is not on this machine: jdsend answers the site's check, catches the post, decodes the links and sends them to the chosen device. This adds a content script on every site and a redirect rule for `127.0.0.1:9666/jdcheck.js`.

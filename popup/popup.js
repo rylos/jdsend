@@ -243,11 +243,7 @@ loginForm.addEventListener("submit", async (event) => {
     // already granted this at install and answers without a prompt.
     if (ext.permissions?.request) {
       const granted = await ext.permissions.request({ origins: ["https://api.jdownloader.org/*"] });
-      if (!granted) throw new Error("jdsend needs to reach api.jdownloader.org.");
-      // For Click'n'Load the content script has to run on the sites; Firefox
-      // grants that only when asked. Not a condition for signing in.
-      await ext.permissions.request({ origins: ["http://*/*", "https://*/*"] }).catch(() => false);
-    }
+      if (!granted) throw new Error("jdsend needs to reach api.jdownloader.org.");    }
     const status = await ask("login", { email, password });
     passwordInput.value = "";
     userEmail.textContent = status.email ?? email;

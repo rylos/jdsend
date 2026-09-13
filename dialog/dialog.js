@@ -40,9 +40,7 @@ async function init() {
   } catch (e) {
     showNote(note, e.message);
   }
-  // Opened for a container: nothing to type, the file is what matters.
-  if (query.get("container")) containerInput.focus();
-  else (linksInput.value ? packageInput : linksInput).focus();
+  (linksInput.value ? packageInput : linksInput).focus();
 }
 
 async function loadFolderHistory() {
