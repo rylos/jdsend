@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.3 — 2026-09-13
+
+- The popup no longer scrolls: three packages in the status instead of four, the Start/Pause/Stop buttons above the list, tighter spacing, all within the height a browser gives a popup.
+
 ## 1.4.2 — 2026-09-13
 
 - Status laid out to fit: speed on its own line, only the percentage beside a package name, speed, time left and size under the bar; the popup is a little wider.

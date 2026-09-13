@@ -59,12 +59,13 @@
           <span id="speed" class="speed">—</span>
           <span id="counts" class="muted">Asking…</span>
         </div>
-        <ul id="packages" class="packages"></ul>
+        <!-- Above the list, so they never scroll out of the popup's fixed height. -->
         <div class="controls">
           <button type="button" id="btn-toggle" class="btn-secondary btn-small" disabled>Start</button>
           <button type="button" id="btn-stop" class="btn-secondary btn-small" disabled>Stop</button>
           <button type="button" id="btn-confirm" class="btn-secondary btn-small" hidden>Confirm LinkGrabber</button>
         </div>
+        <ul id="packages" class="packages"></ul>
       </section>
 
       <hr />

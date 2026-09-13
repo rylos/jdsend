@@ -3,14 +3,14 @@ body {
 }
 
 section {
-  padding: 16px;
+  padding: 12px 16px 14px;
 }
 
 .stack {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .stack button {
@@ -48,7 +48,7 @@ footer .links {
   align-items: center;
   gap: 8px;
   width: 100%;
-  margin-top: 12px;
+  margin-top: 6px;
   padding: 6px 0;
   border: 0;
   background: none;
@@ -78,7 +78,7 @@ footer .links {
 }
 
 .overview {
-  padding: 10px 12px;
+  padding: 8px 12px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
@@ -103,7 +103,7 @@ footer .links {
 
 .packages {
   list-style: none;
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -147,7 +147,7 @@ footer .links {
 
 .package .bar {
   grid-column: 1 / -1;
-  height: 4px;
+  height: 3px;
   border-radius: 2px;
   background: var(--border);
   overflow: hidden;
@@ -180,7 +180,7 @@ footer .links {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 10px;
+  margin: 8px 0 2px;
 }
 
 .btn-small {

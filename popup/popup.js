@@ -28,7 +28,7 @@ const btnContainer = document.getElementById("btn-container");
 /** How often the popup asks while it is open; nothing asks once it closes. */
 const GLANCE_EVERY = 2000;
 /** Packages shown; the rest is a count. */
-const SHOWN = 4;
+const SHOWN = 3;
 let glanceTimer = null;
 let glancing = false;
 let lastState = "UNKNOWN";
