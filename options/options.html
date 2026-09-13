@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>jdsend options</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <header class="brand">
+      <img src="../icons/icon48.png" alt="" />
+      <h1>jdsend</h1>
+    </header>
+
+    <p class="muted">
+      What <em>Send to JDownloader</em> does without asking. <em>Send to JDownloader…</em> shows a form with these as its
+      starting values.
+    </p>
+
+    <form id="options-form">
+      <div class="field">
+        <label for="device">Device</label>
+        <select id="device"></select>
+        <span class="muted">Where quick sends go. With no device chosen, every send opens the form.</span>
+      </div>
+
+      <div class="field">
+        <label for="priority">Priority</label>
+        <select id="priority">
+          <option value="DEFAULT">Default</option>
+          <option value="HIGHEST">Highest</option>
+          <option value="HIGHER">Higher</option>
+          <option value="HIGH">High</option>
+          <option value="LOWER">Lower</option>
+          <option value="LOWEST">Lowest</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="folder">Download folder</label>
+        <input type="text" id="folder" placeholder="JDownloader's default" />
+        <span class="muted">A folder here beats the packagizer's rules.</span>
+      </div>
+
+      <div class="field field--row">
+        <input type="checkbox" id="autostart" />
+        <label for="autostart">Start downloading right away (otherwise the links wait in the LinkGrabber)</label>
+      </div>
+
+      <p id="note" class="note" hidden></p>
+    </form>
+
+    <p class="muted">
+      Keyboard: the <em>Send the current tab</em> shortcut is set in the browser's extension shortcuts page. Saved as you
+      change things.
+    </p>
+
+    <script src="../js/common.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

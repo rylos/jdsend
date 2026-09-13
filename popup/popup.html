@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>jdsend</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- Signed out -->
+    <section id="view-login" hidden>
+      <header class="brand">
+        <img src="../icons/icon48.png" alt="" />
+        <h1>jdsend</h1>
+      </header>
+      <p class="muted">Sign in with your My.JDownloader account. The password is used once to derive the keys and is not kept.</p>
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" autocomplete="current-password" required />
+        </div>
+        <p id="login-note" class="note" hidden></p>
+        <button type="submit" id="btn-login" class="btn-primary">Sign in</button>
+      </form>
+    </section>
+
+    <!-- Signed in -->
+    <section id="view-main" hidden>
+      <header class="brand">
+        <img src="../icons/icon48.png" alt="" />
+        <h1>jdsend</h1>
+        <span id="status-badge" class="badge badge--offline">…</span>
+      </header>
+
+      <div class="field">
+        <label for="device">Send to</label>
+        <select id="device"></select>
+      </div>
+
+      <p id="main-note" class="note" hidden></p>
+
+      <div class="stack">
+        <button type="button" id="btn-send-tab" class="btn-primary">Send this tab</button>
+        <button type="button" id="btn-send-options" class="btn-secondary">Send this tab with options…</button>
+      </div>
+
+      <hr />
+      <footer>
+        <span id="user-email" class="muted"></span>
+        <span class="links">
+          <button type="button" id="btn-options" class="btn-link">Options</button>
+          <button type="button" id="btn-logout" class="btn-link">Sign out</button>
+        </span>
+      </footer>
+    </section>
+
+    <script src="../js/common.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

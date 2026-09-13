@@ -1,0 +1,56 @@
+name: Release
+
+# Runs the tests and, for a tag, builds the zips and attaches them to the
+# release.
+#
+# Signing is deliberately not here: the private key never leaves the
+# maintainer's machine. After this workflow finishes, run
+# `scripts/sign-release.sh vX.Y.Z` locally to download what the runners
+# built, sign it and upload the signatures.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - run: node --test
+
+      - name: Package
+        run: scripts/package.sh
+
+      - name: Checksums
+        run: (cd dist && sha256sum *.zip > SHA256SUMS && cat SHA256SUMS)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zips
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS
+
+      - name: Upload to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          # The tag is annotated with the release notes, so a release this
+          # workflow has to create can take them from there.
+          gh release view "$TAG" >/dev/null 2>&1 ||
+            gh release create "$TAG" --title "jdsend ${TAG#v}" --notes-from-tag
+          gh release upload "$TAG" dist/*.zip dist/SHA256SUMS --clobber

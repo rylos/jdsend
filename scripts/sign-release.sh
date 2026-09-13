@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Sign the assets of a release, on the maintainer's machine.
+#
+# The zips are built by GitHub's runners; the key does not go there. This
+# downloads what they produced, checks it against the checksums they wrote,
+# signs every file with an SSH key held here and uploads the signatures.
+#
+#   scripts/sign-release.sh v1.0.0
+#
+# The key is $JDSEND_SIGNING_KEY, or ~/.ssh/id_rsa. Anyone can verify a
+# download with the public half, which lives in .github/allowed_signers:
+#
+#   ssh-keygen -Y verify -f allowed_signers -I <identity> -n file \
+#              -s jdsend-1.0.0-chrome.zip.sig < jdsend-1.0.0-chrome.zip
+set -euo pipefail
+
+tag=${1:-}
+if [ -z "$tag" ]; then
+    echo "usage: $0 vX.Y.Z" >&2
+    exit 2
+fi
+
+key=${JDSEND_SIGNING_KEY:-$HOME/.ssh/id_rsa}
+if [ ! -f "$key" ]; then
+    echo "no signing key at $key; set JDSEND_SIGNING_KEY" >&2
+    exit 1
+fi
+
+# Resolved while we are still inside the checkout: the work below happens in
+# a temporary directory, where gh has no repository to infer from.
+repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+echo "Downloading the assets of $tag…"
+gh release download "$tag" --repo "$repo" --dir "$work" --pattern '*' --clobber
+cd "$work"
+
+# Signatures from an earlier run of this script are not what we sign.
+rm -f ./*.sig
+
+if [ ! -f SHA256SUMS ]; then
+    echo "the release has no SHA256SUMS; did the workflow finish?" >&2
+    exit 1
+fi
+
+echo "Checking what the runners built…"
+grep -v '^SHA256SUMS' SHA256SUMS > expected.txt
+sha256sum --check --strict expected.txt
+rm expected.txt
+
+echo "Signing with $key…"
+for file in *; do
+    case "$file" in *.sig) continue ;; esac
+    # The `file` namespace is what ssh-keygen verifies against, and keeps
+    # these signatures from being replayed as git ones.
+    ssh-keygen -Y sign -f "$key" -n file -q "$file"
+    echo "  $file.sig"
+done
+
+echo "Uploading the signatures…"
+gh release upload "$tag" --repo "$repo" ./*.sig --clobber
+
+echo
+echo "Done. Verify one the way anybody else would:"
+echo
+echo "  ssh-keygen -Y verify -f allowed_signers -I <identity> -n file \\"
+echo "             -s SHA256SUMS.sig < SHA256SUMS"

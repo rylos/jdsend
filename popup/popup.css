@@ -1,0 +1,43 @@
+body {
+  width: 340px;
+}
+
+section {
+  padding: 16px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.stack button {
+  width: 100%;
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+footer .muted {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+footer .links {
+  display: flex;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+#main-note {
+  margin-top: 8px;
+}

@@ -1,0 +1,13 @@
+body {
+  padding: 16px 20px 20px;
+  min-width: 460px;
+}
+
+header.brand {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.actions {
+  margin-top: 4px;
+}

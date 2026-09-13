@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Send to JDownloader — jdsend</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="dialog.css" />
+  </head>
+  <body>
+    <header class="brand">
+      <img src="../icons/icon48.png" alt="" />
+      <h1>Send to JDownloader</h1>
+    </header>
+
+    <section id="view-signed-out" hidden>
+      <p class="note note--muted">Not signed in. Open jdsend from the toolbar and sign in first.</p>
+    </section>
+
+    <section id="view-form" hidden>
+      <form id="send-form" novalidate>
+        <div class="field">
+          <label for="links">Links</label>
+          <textarea id="links" spellcheck="false" placeholder="One or more addresses, or any text with links in it"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="device">Device</label>
+          <select id="device"></select>
+        </div>
+
+        <div class="two">
+          <div class="field">
+            <label for="package-name">Package <span class="optional">(optional)</span></label>
+            <input type="text" id="package-name" />
+          </div>
+          <div class="field">
+            <label for="priority">Priority</label>
+            <select id="priority">
+              <option value="DEFAULT">Default</option>
+              <option value="HIGHEST">Highest</option>
+              <option value="HIGHER">Higher</option>
+              <option value="HIGH">High</option>
+              <option value="LOWER">Lower</option>
+              <option value="LOWEST">Lowest</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="folder">Download folder <span class="optional">(optional)</span></label>
+          <input type="text" id="folder" list="folder-history" autocomplete="off" placeholder="JDownloader's default" />
+          <datalist id="folder-history"></datalist>
+        </div>
+
+        <div class="two">
+          <div class="field">
+            <label for="download-password">Download password <span class="optional">(optional)</span></label>
+            <input type="text" id="download-password" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="extract-password">Archive password <span class="optional">(optional)</span></label>
+            <input type="text" id="extract-password" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="comment">Comment <span class="optional">(optional)</span></label>
+          <input type="text" id="comment" />
+        </div>
+
+        <div class="field field--row">
+          <input type="checkbox" id="autostart" />
+          <label for="autostart">Start downloading right away (otherwise the links wait in the LinkGrabber)</label>
+        </div>
+
+        <p id="form-note" class="note" hidden></p>
+
+        <div class="actions">
+          <button type="button" id="btn-cancel" class="btn-secondary">Cancel</button>
+          <button type="submit" id="btn-send" class="btn-primary">Send</button>
+        </div>
+      </form>
+    </section>
+
+    <script src="../js/common.js"></script>
+    <script src="dialog.js"></script>
+  </body>
+</html>
