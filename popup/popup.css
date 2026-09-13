@@ -148,6 +148,10 @@ footer .links {
   background: var(--success);
 }
 
+.package.failed .bar > span {
+  background: var(--danger);
+}
+
 .package.running .bar > span {
   background: var(--accent);
 }

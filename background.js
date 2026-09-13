@@ -2,7 +2,7 @@
 // Chrome, an event page in Firefox. Everything visible (popup, dialog,
 // options) asks it through runtime messages.
 
-if (typeof importScripts === "function") importScripts("js/myjd.js");
+if (typeof importScripts === "function") importScripts("js/myjd.js", "js/cnl.js");
 
 const ext = globalThis.browser ?? globalThis.chrome;
 const client = new myjd.Client(myjd.storageStore(ext.storage.local));
@@ -112,8 +112,32 @@ async function quickSend(text, tab) {
   }
 }
 
-function openDialog(text, tab) {
-  const query = new URLSearchParams({ text, source: tab?.url ?? "" });
+/**
+ * A Click'n'Load post caught on a page. `addcrypted2` carries the links
+ * encrypted, `add` carries them plain; both may name a package, a source
+ * and archive passwords. From there it is a quick send.
+ */
+async function clickNLoad(kind, fields, source) {
+  const settings = await loadSettings();
+  try {
+    const text = kind === "addcrypted2" ? await cnl.decrypt(fields.crypted ?? "", fields.jk ?? "") : String(fields.urls ?? "");
+    if (!text) throw new Error("Click'n'Load: no links in the post.");
+    const options = {
+      ...settings,
+      packageName: fields.package || fields.packageName || "",
+      extractPassword: fields.passwords || "",
+      sourceUrl: fields.source || source,
+    };
+    if (!settings.device) return openDialog(text, { url: options.sourceUrl });
+    await send(settings.device, text, options);
+    flash("✓", "#16a34a", "Click'n'Load sent to JDownloader");
+  } catch (e) {
+    flash("!", "#dc2626", `jdsend: ${myjd.explain(e)}`);
+  }
+}
+
+function openDialog(text, tab, { container = false } = {}) {
+  const query = new URLSearchParams({ text, source: tab?.url ?? "", ...(container ? { container: "1" } : {}) });
   return ext.windows.create({
     url: `${ext.runtime.getURL("dialog/dialog.html")}?${query}`,
     type: "popup",
@@ -152,6 +176,35 @@ const PACKAGE_FIELDS = {
   startAt: 0,
 };
 
+/**
+ * What became of each package's archives, by package id: "extracting",
+ * "queued", "extracted" or "failed", and nothing for a package with no
+ * archive in it. The queue knows what is being worked on now; the links'
+ * `extractionStatus` is the outcome of a run that already ended.
+ */
+function extractionByPackage(packages, links, queue) {
+  const byPackage = new Map();
+  for (const link of links) {
+    if (!byPackage.has(link.packageUUID)) byPackage.set(link.packageUUID, []);
+    byPackage.get(link.packageUUID).push(link);
+  }
+  const result = new Map();
+  for (const p of packages) {
+    const mine = byPackage.get(p.uuid) ?? [];
+    // An archive in the queue lists its volumes by link name.
+    const archive = queue.find((a) => a.states && mine.some((l) => Object.hasOwn(a.states, l.name)));
+    if (archive) {
+      result.set(p.uuid, archive.controllerStatus === "RUNNING" ? "extracting" : "queued");
+      continue;
+    }
+    const reported = mine.map((l) => l.extractionStatus).filter((s) => typeof s === "string");
+    if (reported.some((s) => s.startsWith("ERROR"))) result.set(p.uuid, "failed");
+    // One extracted archive says nothing about a package still coming down.
+    else if (p.finished && reported.includes("SUCCESSFUL")) result.set(p.uuid, "extracted");
+  }
+  return result;
+}
+
 function rank(p) {
   if (p.running) return 0;
   if (p.finished) return 3;
@@ -165,14 +218,18 @@ function rank(p) {
  */
 async function overview(device) {
   const call = (path, params) => client.call(() => client.deviceCall(device, path, params));
-  const [state, speed, packages, grabber, collecting] = await Promise.all([
+  const [state, speed, packages, links, queue, grabber, collecting] = await Promise.all([
     call("/downloadcontroller/getCurrentState"),
     call("/downloadcontroller/getSpeedInBps"),
     call("/downloadsV2/queryPackages", [PACKAGE_FIELDS]),
+    // Only for the extraction status, which lives on the links.
+    call("/downloadsV2/queryLinks", [{ name: true, packageUUID: true, extractionStatus: true, maxResults: -1, startAt: 0 }]),
+    call("/extraction/getQueue"),
     call("/linkgrabberv2/queryPackages", [{ childCount: true, maxResults: -1, startAt: 0 }]),
     call("/linkgrabberv2/isCollecting"),
   ]);
   const all = Array.isArray(packages) ? packages : [];
+  const extraction = extractionByPackage(all, Array.isArray(links) ? links : [], Array.isArray(queue) ? queue : []);
   return {
     state: typeof state === "string" ? state : "UNKNOWN",
     speed: typeof speed === "number" ? speed : 0,
@@ -191,6 +248,7 @@ async function overview(device) {
         finished: !!finished,
         speed: speed ?? 0,
         childCount: childCount ?? 0,
+        extraction: extraction.get(uuid) ?? null,
       }))
       .sort((a, b) => rank(a) - rank(b)),
     grabber: {
@@ -245,7 +303,9 @@ async function handle(msg) {
     case "container":
       return sendContainer(msg.device, msg.kind, msg.content);
     case "dialog":
-      return openDialog(msg.text, msg.tab);
+      return openDialog(msg.text, msg.tab, { container: !!msg.container });
+    case "cnl":
+      return clickNLoad(msg.kind, msg.fields ?? {}, msg.source);
     case "overview":
       return overview(msg.device);
     case "control":

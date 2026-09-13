@@ -21,6 +21,7 @@ const btnToggle = document.getElementById("btn-toggle");
 const btnStop = document.getElementById("btn-stop");
 const btnConfirm = document.getElementById("btn-confirm");
 const btnStatus = document.getElementById("btn-status");
+const btnContainer = document.getElementById("btn-container");
 
 // --- the glance at the device -------------------------------------------------
 
@@ -62,7 +63,9 @@ function renderPackage(p) {
   if (p.running) {
     detail.textContent = [`${pct}%`, p.speed > 0 ? `${bytes(p.speed)}/s` : "", duration(p.eta)].filter(Boolean).join(" · ");
   } else if (p.finished) {
-    detail.textContent = `done · ${bytes(p.bytesTotal)}`;
+    const outcome = { extracting: "extracting", queued: "extract queued", extracted: "extracted", failed: "extraction failed" }[p.extraction];
+    detail.textContent = `${outcome ?? "done"} · ${bytes(p.bytesTotal)}`;
+    if (p.extraction === "failed") li.classList.add("failed");
   } else if (!p.enabled) {
     detail.textContent = "disabled";
   } else {
@@ -96,6 +99,8 @@ function renderOverview(o) {
   if (running) parts.push(`${running} running`);
   if (waiting) parts.push(`${waiting} waiting`);
   if (finished) parts.push(`${finished} done`);
+  const extracting = o.packages.filter((p) => p.extraction === "extracting" || p.extraction === "queued").length;
+  if (extracting) parts.push(`${extracting} extracting`);
   if (o.bytesTotal > 0) parts.push(waiting || running ? `${bytes(o.bytesLoaded)} of ${bytes(o.bytesTotal)}` : bytes(o.bytesTotal));
   if (o.grabber.links) parts.push(`${o.grabber.links} in LinkGrabber`);
   else if (o.grabber.collecting) parts.push("LinkGrabber busy");
@@ -211,14 +216,14 @@ async function refreshDevices() {
     const devices = await fillDevices(deviceSelect, settings.device);
     const mine = devices.find((d) => d.id === deviceSelect.value);
     setOnline(!!mine, mine ? "Connected" : "No device");
-    btnSendTab.disabled = btnSendOptions.disabled = btnStatus.disabled = !mine;
+    btnSendTab.disabled = btnSendOptions.disabled = btnContainer.disabled = btnStatus.disabled = !mine;
     // The first device becomes the default when none was chosen yet.
     if (!settings.device && mine) await saveSettings({ device: mine.id });
     if (!mine) closeStatus();
   } catch (e) {
     setOnline(false);
     showNote(mainNote, e.message);
-    btnSendTab.disabled = btnSendOptions.disabled = btnStatus.disabled = true;
+    btnSendTab.disabled = btnSendOptions.disabled = btnContainer.disabled = btnStatus.disabled = true;
   }
 }
 
@@ -239,6 +244,9 @@ loginForm.addEventListener("submit", async (event) => {
     if (ext.permissions?.request) {
       const granted = await ext.permissions.request({ origins: ["https://api.jdownloader.org/*"] });
       if (!granted) throw new Error("jdsend needs to reach api.jdownloader.org.");
+      // For Click'n'Load the content script has to run on the sites; Firefox
+      // grants that only when asked. Not a condition for signing in.
+      await ext.permissions.request({ origins: ["http://*/*", "https://*/*"] }).catch(() => false);
     }
     const status = await ask("login", { email, password });
     passwordInput.value = "";
@@ -261,14 +269,13 @@ deviceSelect.addEventListener("change", () => {
 async function sendTab(withOptions) {
   hideNote(mainNote);
   const tab = await currentTab();
-  if (withOptions) {
-    // With no address to send, the form is still the way to a container file.
-    await ask("dialog", { text: tab?.url ?? "", tab: tab ? { url: tab.url } : undefined });
-    window.close();
-    return;
-  }
   if (!tab) {
     showNote(mainNote, "This tab has no address to send.");
+    return;
+  }
+  if (withOptions) {
+    await ask("dialog", { text: tab.url, tab: { url: tab.url } });
+    window.close();
     return;
   }
   btnSendTab.disabled = true;
@@ -288,6 +295,10 @@ async function sendTab(withOptions) {
 
 btnSendTab.addEventListener("click", () => sendTab(false));
 btnSendOptions.addEventListener("click", () => sendTab(true));
+btnContainer.addEventListener("click", async () => {
+  await ask("dialog", { text: "", container: true });
+  window.close();
+});
 btnOptions.addEventListener("click", () => ext.runtime.openOptionsPage());
 btnLogout.addEventListener("click", async () => {
   closeStatus();

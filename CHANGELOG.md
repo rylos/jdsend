@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 — 2026-09-13
+
+- Click'n'Load works with a JDownloader that is not on this machine: jdsend answers the site's check, catches the post, decodes the links and sends them to the chosen device. This adds a content script on every site and a redirect rule for `127.0.0.1:9666/jdcheck.js`.
+- *Send a container file…* is its own button in the popup, opening the form empty with the file field ready.
+- Finished packages say what became of their archives: extracting, extract queued, extracted, extraction failed.
+
 ## 1.2.0 — 2026-09-13
 
 - Container files: the form takes a `.dlc`, `.ccf` or `.rsdf` from disk (pick it, or drop it on the window) and hands it to JDownloader whole, with or without links alongside.

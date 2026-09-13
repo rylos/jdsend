@@ -2,7 +2,7 @@
 
 Send links to [JDownloader](https://jdownloader.org/) from the browser, through My.JDownloader.
 
-Right-click a link, an image, a video, some selected text or the page itself and pick **Send to JDownloader now**: it goes to your JDownloader straight away, wherever it runs, and the toolbar icon says whether it arrived. **Send with options…** opens a small form first, for when the package, the folder, the priority or a password matter, or to hand over a container file (`.dlc`, `.ccf`, `.rsdf`) from disk — pick it or drop it on the form. The toolbar button sends the current tab; so does `Alt+Shift+J`.
+Right-click a link, an image, a video, some selected text or the page itself and pick **Send to JDownloader now**: it goes to your JDownloader straight away, wherever it runs, and the toolbar icon says whether it arrived. **Send with options…** opens a small form first, for when the package, the folder, the priority or a password matter. The toolbar button sends the current tab; so does `Alt+Shift+J`.
 
 Unfold *Status* in the popup for a glance at the JDownloader: speed, what is downloading and how far along, what waits in the LinkGrabber, with Start/Pause/Stop and a button to confirm the whole LinkGrabber. It asks only while the popup is open.
 
@@ -20,6 +20,16 @@ Grab the zip for your browser from the [latest release](https://github.com/rylos
 
 Then click the toolbar icon, sign in with your My.JDownloader account and, if you have more than one JDownloader, pick the one to send to. The context menu, the popup and the shortcut are ready from there.
 
+## Click'n'Load
+
+A site's *Click'n'Load* button posts the links to `http://127.0.0.1:9666`, where it expects a JDownloader on the same machine as the browser. When yours runs elsewhere — a server, a NAS, a container — the button does nothing. With jdsend it works: the extension answers the site's check for a local JDownloader, catches the post, decodes the links (they are AES-encrypted with a key the page carries) and sends them to the JDownloader chosen in the options, with the package name and archive passwords the site provided. The toolbar icon shows the outcome, as for any quick send.
+
+This is why jdsend asks to run on every site: its content script does nothing but wait for a form aimed at `127.0.0.1:9666`. On Firefox that access is granted on request — allow it when the popup asks, or later under the add-on's *Permissions* tab.
+
+## Container files
+
+*Send a container file…* in the popup opens the form with the file field ready: pick a `.dlc`, `.ccf` or `.rsdf`, or drop it on the window, and it goes to JDownloader whole. The same field is in every form, so links and a container can travel together.
+
 ## Options
 
 Right-click the toolbar icon → *Options* (or the popup's *Options* link):
@@ -31,7 +41,7 @@ The shortcut is changed where the browser keeps extension shortcuts (`chrome://e
 
 ## What it sends, and where
 
-Everything goes to `https://api.jdownloader.org`, the My.JDownloader relay, encrypted end to end with keys only your JDownloader shares — the same protocol JDownloader's own web interface and apps use. jdsend has no server of its own, does not check for updates, and does not phone anywhere else.
+Everything goes to `https://api.jdownloader.org`, the My.JDownloader relay, encrypted end to end with keys only your JDownloader shares — the same protocol JDownloader's own web interface and apps use. jdsend has no server of its own, does not check for updates, and does not phone anywhere else. On the sites you visit it only watches for Click'n'Load posts, as described above; nothing about the pages leaves the browser.
 
 Signing in derives two keys from the e-mail and password and keeps them in the browser's extension storage; the password itself is discarded. Those keys let jdsend open sessions on your behalf without asking again — which also means they are worth as much as the password, as they are in JDownloader itself. *Sign out* in the popup forgets them and ends the session on the server.
 

@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": { "type": "redirect", "redirect": { "extensionPath": "/cnl/jdcheck.js" } },
+    "condition": {
+      "regexFilter": "^https?://(127\\.0\\.0\\.1|localhost):9666/jdcheck\\.js",
+      "resourceTypes": ["script"]
+    }
+  }
+]
