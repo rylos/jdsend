@@ -30,6 +30,7 @@ Right-click the toolbar icon → *Options* (or the popup's *Options* link):
 
 - **Device** — where quick sends go. With none chosen, every send opens the form.
 - **Priority**, **Download folder**, **Start right away** — what a quick send uses, and what the form starts from. A folder set here beats JDownloader's packagizer rules; leave it empty and the rules decide.
+- **Remember whether Status is unfolded** — off by default, so the popup opens folded and asks the JDownloader nothing until you unfold it. On, it opens the way you left it.
 
 The shortcut is changed where the browser keeps extension shortcuts (`chrome://extensions/shortcuts`, or *Manage Extension Shortcuts* in Firefox's add-ons page).
 

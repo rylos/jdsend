@@ -7,7 +7,7 @@ if (typeof importScripts === "function") importScripts("js/myjd.js");
 const ext = globalThis.browser ?? globalThis.chrome;
 const client = new myjd.Client(myjd.storageStore(ext.storage.local));
 
-const DEFAULT_SETTINGS = { device: "", deviceName: "", autostart: true, priority: "DEFAULT", folder: "" };
+const DEFAULT_SETTINGS = { device: "", deviceName: "", autostart: true, priority: "DEFAULT", folder: "", rememberStatus: false, statusOpen: false };
 
 async function loadSettings() {
   const { settings } = await ext.storage.local.get("settings");

@@ -2,6 +2,7 @@ const deviceSelect = document.getElementById("device");
 const prioritySelect = document.getElementById("priority");
 const folderInput = document.getElementById("folder");
 const autostartInput = document.getElementById("autostart");
+const rememberStatusInput = document.getElementById("remember-status");
 const note = document.getElementById("note");
 
 async function init() {
@@ -9,6 +10,7 @@ async function init() {
   prioritySelect.value = settings.priority;
   folderInput.value = settings.folder;
   autostartInput.checked = settings.autostart;
+  rememberStatusInput.checked = settings.rememberStatus;
 
   const status = await ask("status");
   if (!status.loggedIn) {
@@ -31,5 +33,9 @@ deviceSelect.addEventListener("change", () =>
 prioritySelect.addEventListener("change", () => saveSettings({ priority: prioritySelect.value }));
 folderInput.addEventListener("change", () => saveSettings({ folder: folderInput.value.trim() }));
 autostartInput.addEventListener("change", () => saveSettings({ autostart: autostartInput.checked }));
+rememberStatusInput.addEventListener("change", () =>
+  // Turning it off also forgets the last state, so the popup opens folded again.
+  saveSettings({ rememberStatus: rememberStatusInput.checked, statusOpen: false }),
+);
 
 init();

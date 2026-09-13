@@ -167,7 +167,14 @@ function closeStatus() {
   btnStatus.setAttribute("aria-expanded", "false");
 }
 
-btnStatus.addEventListener("click", () => (overviewBox.hidden ? openStatus() : closeStatus()));
+btnStatus.addEventListener("click", async () => {
+  const open = overviewBox.hidden;
+  if (open) openStatus();
+  else closeStatus();
+  // Only a deliberate choice is worth remembering; a box closed by an
+  // error or a sign-out is not.
+  if ((await loadSettings()).rememberStatus) await saveSettings({ statusOpen: open });
+});
 
 async function act(button, action) {
   button.disabled = true;
@@ -205,6 +212,10 @@ async function init() {
   }
   userEmail.textContent = status.email ?? "";
   show("main");
+  // When asked to remember, the box is open from the first paint, so the
+  // popup still appears in its final shape; the asking waits for the device.
+  const settings = await loadSettings();
+  if (settings.rememberStatus && settings.statusOpen) openStatus();
   await refreshDevices();
 }
 
@@ -220,6 +231,7 @@ async function refreshDevices() {
     // The first device becomes the default when none was chosen yet.
     if (!settings.device && mine) await saveSettings({ device: mine.id, deviceName: mine.name });
     if (!mine) closeStatus();
+    else if (!overviewBox.hidden) glance();
   } catch (e) {
     setOnline(false);
     showNote(mainNote, e.message);

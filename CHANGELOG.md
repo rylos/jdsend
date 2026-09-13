@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0 — 2026-09-13
+
+- Option: remember whether *Status* is unfolded in the popup. Off by default; on, the popup opens the way it was left, in its final shape from the first paint.
+
 ## 1.3.2 — 2026-09-13
 
 - The quick context menu entry is named after the JDownloader it sends to, *Send to jd2@home*, and follows the choice made in the popup or the options; so does the toolbar tooltip after a send.
