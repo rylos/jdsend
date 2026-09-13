@@ -79,6 +79,21 @@ function jobFor(text, o = {}) {
   return job;
 }
 
+const CONTAINER_KINDS = ["dlc", "ccf", "rsdf"];
+
+/**
+ * Hand JDownloader a container file whole. `content` is a data URL; the
+ * kind is the container's own extension, which is what JDownloader saves
+ * it under before opening it. The LinkGrabber decides the rest, as it does
+ * for a container dropped on JDownloader itself.
+ */
+function sendContainer(device, kind, content) {
+  if (!device) throw new Error("No device chosen.");
+  if (!CONTAINER_KINDS.includes(kind)) throw new Error("Only .dlc, .ccf and .rsdf containers can be sent.");
+  if (typeof content !== "string" || !content.startsWith("data:")) throw new Error("The container could not be read.");
+  return client.call(() => client.deviceCall(device, "/linkgrabberv2/addContainer", [kind, content]));
+}
+
 function send(device, text, options) {
   if (!device) throw new Error("No device chosen.");
   if (!text?.trim()) throw new Error("Nothing to send.");
@@ -227,6 +242,8 @@ async function handle(msg) {
       return client.folderHistory(msg.device);
     case "send":
       return send(msg.device, msg.text, msg.options);
+    case "container":
+      return sendContainer(msg.device, msg.kind, msg.content);
     case "dialog":
       return openDialog(msg.text, msg.tab);
     case "overview":

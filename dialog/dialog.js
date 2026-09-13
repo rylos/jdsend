@@ -11,6 +11,7 @@ const downloadPasswordInput = document.getElementById("download-password");
 const extractPasswordInput = document.getElementById("extract-password");
 const commentInput = document.getElementById("comment");
 const autostartInput = document.getElementById("autostart");
+const containerInput = document.getElementById("container");
 const note = document.getElementById("form-note");
 const btnSend = document.getElementById("btn-send");
 const btnCancel = document.getElementById("btn-cancel");
@@ -61,11 +62,51 @@ async function loadFolderHistory() {
 
 deviceSelect.addEventListener("change", loadFolderHistory);
 
+// --- container files: DLC, CCF, RSDF -------------------------------------------
+
+const CONTAINER_KINDS = ["dlc", "ccf", "rsdf"];
+
+/** The lowercase extension of a container file, or null for anything else. */
+function containerKind(file) {
+  const kind = file?.name.split(".").pop()?.toLowerCase();
+  return CONTAINER_KINDS.includes(kind) ? kind : null;
+}
+
+/** The file as a data URL, which is how JDownloader wants a container handed over. */
+function readAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+    reader.readAsDataURL(file);
+  });
+}
+
+// A container dropped anywhere on the window lands in the file field.
+document.addEventListener("dragover", (event) => event.preventDefault());
+document.addEventListener("drop", (event) => {
+  event.preventDefault();
+  const file = [...(event.dataTransfer?.files ?? [])].find(containerKind);
+  if (!file) {
+    showNote(note, "Only .dlc, .ccf and .rsdf files can be dropped here.");
+    return;
+  }
+  const list = new DataTransfer();
+  list.items.add(file);
+  containerInput.files = list.files;
+  hideNote(note);
+});
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   hideNote(note);
   const text = linksInput.value.trim();
-  if (!text) {
+  const file = containerInput.files?.[0] ?? null;
+  if (file && !containerKind(file)) {
+    showNote(note, "The container must be a .dlc, .ccf or .rsdf file.");
+    return;
+  }
+  if (!text && !file) {
     showNote(note, "Nothing to send.");
     linksInput.focus();
     return;
@@ -78,20 +119,26 @@ form.addEventListener("submit", async (event) => {
   btnSend.disabled = true;
   btnSend.textContent = "Sending…";
   try {
-    await ask("send", {
-      device: deviceSelect.value,
-      text,
-      options: {
-        packageName: packageInput.value.trim(),
-        folder: folderInput.value.trim(),
-        priority: prioritySelect.value,
-        comment: commentInput.value.trim(),
-        downloadPassword: downloadPasswordInput.value,
-        extractPassword: extractPasswordInput.value,
-        autostart: autostartInput.checked,
-        sourceUrl,
-      },
-    });
+    const device = deviceSelect.value;
+    if (file) {
+      await ask("container", { device, kind: containerKind(file), content: await readAsDataUrl(file) });
+    }
+    if (text) {
+      await ask("send", {
+        device,
+        text,
+        options: {
+          packageName: packageInput.value.trim(),
+          folder: folderInput.value.trim(),
+          priority: prioritySelect.value,
+          comment: commentInput.value.trim(),
+          downloadPassword: downloadPasswordInput.value,
+          extractPassword: extractPasswordInput.value,
+          autostart: autostartInput.checked,
+          sourceUrl,
+        },
+      });
+    }
     showNote(note, "Sent to JDownloader.", "success");
     setTimeout(() => window.close(), 1200);
   } catch (e) {

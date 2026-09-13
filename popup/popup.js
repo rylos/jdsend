@@ -261,13 +261,14 @@ deviceSelect.addEventListener("change", () => {
 async function sendTab(withOptions) {
   hideNote(mainNote);
   const tab = await currentTab();
-  if (!tab) {
-    showNote(mainNote, "This tab has no address to send.");
+  if (withOptions) {
+    // With no address to send, the form is still the way to a container file.
+    await ask("dialog", { text: tab?.url ?? "", tab: tab ? { url: tab.url } : undefined });
+    window.close();
     return;
   }
-  if (withOptions) {
-    await ask("dialog", { text: tab.url, tab: { url: tab.url } });
-    window.close();
+  if (!tab) {
+    showNote(mainNote, "This tab has no address to send.");
     return;
   }
   btnSendTab.disabled = true;

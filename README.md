@@ -2,7 +2,7 @@
 
 Send links to [JDownloader](https://jdownloader.org/) from the browser, through My.JDownloader.
 
-Right-click a link, an image, a video, some selected text or the page itself and pick **Send to JDownloader now**: it goes to your JDownloader straight away, wherever it runs, and the toolbar icon says whether it arrived. **Send with options…** opens a small form first, for when the package, the folder, the priority or a password matter. The toolbar button sends the current tab; so does `Alt+Shift+J`.
+Right-click a link, an image, a video, some selected text or the page itself and pick **Send to JDownloader now**: it goes to your JDownloader straight away, wherever it runs, and the toolbar icon says whether it arrived. **Send with options…** opens a small form first, for when the package, the folder, the priority or a password matter, or to hand over a container file (`.dlc`, `.ccf`, `.rsdf`) from disk — pick it or drop it on the form. The toolbar button sends the current tab; so does `Alt+Shift+J`.
 
 Unfold *Status* in the popup for a glance at the JDownloader: speed, what is downloading and how far along, what waits in the LinkGrabber, with Start/Pause/Stop and a button to confirm the whole LinkGrabber. It asks only while the popup is open.
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0 — 2026-09-13
+
+- Container files: the form takes a `.dlc`, `.ccf` or `.rsdf` from disk (pick it, or drop it on the window) and hands it to JDownloader whole, with or without links alongside.
+- The popup opens the form even from a tab with no address, so a container can be sent from anywhere.
+
 ## 1.1.2 — 2026-09-13
 
 - The status box folds out under a *Status* row with a chevron instead of a button.
