@@ -13,6 +13,138 @@ const btnSendOptions = document.getElementById("btn-send-options");
 const userEmail = document.getElementById("user-email");
 const btnOptions = document.getElementById("btn-options");
 const btnLogout = document.getElementById("btn-logout");
+const overviewBox = document.getElementById("overview");
+const speedEl = document.getElementById("speed");
+const countsEl = document.getElementById("counts");
+const packagesList = document.getElementById("packages");
+const btnToggle = document.getElementById("btn-toggle");
+const btnStop = document.getElementById("btn-stop");
+const btnConfirm = document.getElementById("btn-confirm");
+
+// --- the glance at the device -------------------------------------------------
+
+/** How often the popup asks while it is open; nothing asks once it closes. */
+const GLANCE_EVERY = 2000;
+/** Packages shown; the rest is a count. */
+const SHOWN = 4;
+let glanceTimer = null;
+let glancing = false;
+let lastState = "UNKNOWN";
+
+function bytes(n) {
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let i = 0;
+  while (n >= 1000 && i < units.length - 1) {
+    n /= 1024;
+    i++;
+  }
+  return `${n < 10 && i > 0 ? n.toFixed(1) : Math.round(n)} ${units[i]}`;
+}
+
+function duration(seconds) {
+  if (seconds < 0) return "";
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+  return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+}
+
+function renderPackage(p) {
+  const li = document.createElement("li");
+  li.className = `package${p.running ? " running" : ""}${p.enabled ? "" : " disabled"}`;
+  const name = document.createElement("span");
+  name.className = "name";
+  name.textContent = p.name;
+  name.title = p.name;
+  const detail = document.createElement("span");
+  detail.className = "detail";
+  const pct = p.bytesTotal > 0 ? Math.floor((p.bytesLoaded / p.bytesTotal) * 100) : 0;
+  if (p.running) {
+    detail.textContent = [`${pct}%`, p.speed > 0 ? `${bytes(p.speed)}/s` : "", duration(p.eta)].filter(Boolean).join(" · ");
+  } else if (!p.enabled) {
+    detail.textContent = "disabled";
+  } else {
+    detail.textContent = p.bytesTotal > 0 ? `${pct}% · waiting` : "waiting";
+  }
+  const bar = document.createElement("span");
+  bar.className = "bar";
+  const fill = document.createElement("span");
+  fill.style.width = `${pct}%`;
+  bar.append(fill);
+  li.append(name, detail, bar);
+  return li;
+}
+
+function renderOverview(o) {
+  lastState = o.state;
+  const running = o.packages.filter((p) => p.running).length;
+  speedEl.textContent = o.state === "RUNNING" || running > 0 ? `↓ ${bytes(o.speed)}/s` : o.state === "PAUSE" ? "Paused" : "Idle";
+  const parts = [];
+  if (running) parts.push(`${running} running`);
+  const waiting = o.packages.length - running;
+  if (waiting) parts.push(`${waiting} waiting`);
+  if (o.finished) parts.push(`${o.finished} done`);
+  if (o.grabber.links) parts.push(`${o.grabber.links} in LinkGrabber`);
+  else if (o.grabber.collecting) parts.push("LinkGrabber busy");
+  countsEl.textContent = parts.join(" · ") || "Nothing queued";
+
+  packagesList.replaceChildren(...o.packages.slice(0, SHOWN).map(renderPackage));
+  if (o.packages.length > SHOWN) {
+    const more = document.createElement("li");
+    more.className = "muted";
+    more.textContent = `and ${o.packages.length - SHOWN} more`;
+    packagesList.append(more);
+  }
+
+  btnToggle.disabled = false;
+  btnToggle.textContent = o.state === "RUNNING" ? "Pause" : o.state === "PAUSE" ? "Resume" : "Start";
+  btnToggle.dataset.action = o.state === "RUNNING" ? "pause" : o.state === "PAUSE" ? "resume" : "start";
+  btnStop.disabled = !(o.state === "RUNNING" || o.state === "PAUSE");
+  btnConfirm.hidden = o.grabber.links === 0;
+  btnConfirm.textContent = `Confirm ${o.grabber.links} in LinkGrabber`;
+  overviewBox.hidden = false;
+}
+
+async function glance() {
+  if (glancing || !deviceSelect.value) return;
+  glancing = true;
+  try {
+    renderOverview(await ask("overview", { device: deviceSelect.value }));
+    hideNote(mainNote);
+  } catch (e) {
+    overviewBox.hidden = true;
+    showNote(mainNote, e.message);
+  } finally {
+    glancing = false;
+  }
+}
+
+function startGlancing() {
+  stopGlancing();
+  glance();
+  glanceTimer = setInterval(glance, GLANCE_EVERY);
+}
+
+function stopGlancing() {
+  clearInterval(glanceTimer);
+  glanceTimer = null;
+}
+
+async function act(button, action) {
+  button.disabled = true;
+  try {
+    await ask("control", { device: deviceSelect.value, action });
+    await glance();
+  } catch (e) {
+    showNote(mainNote, e.message);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+btnToggle.addEventListener("click", () => act(btnToggle, btnToggle.dataset.action ?? "start"));
+btnStop.addEventListener("click", () => act(btnStop, "stop"));
+btnConfirm.addEventListener("click", () => act(btnConfirm, "confirm"));
+window.addEventListener("unload", stopGlancing);
 
 function show(view) {
   viewLogin.hidden = view !== "login";
@@ -47,6 +179,8 @@ async function refreshDevices() {
     btnSendTab.disabled = btnSendOptions.disabled = !mine;
     // The first device becomes the default when none was chosen yet.
     if (!settings.device && mine) await saveSettings({ device: mine.id });
+    if (mine) startGlancing();
+    else overviewBox.hidden = true;
   } catch (e) {
     setOnline(false);
     showNote(mainNote, e.message);
@@ -85,7 +219,11 @@ loginForm.addEventListener("submit", async (event) => {
   }
 });
 
-deviceSelect.addEventListener("change", () => saveSettings({ device: deviceSelect.value }));
+deviceSelect.addEventListener("change", () => {
+  saveSettings({ device: deviceSelect.value });
+  overviewBox.hidden = true;
+  startGlancing();
+});
 
 async function sendTab(withOptions) {
   hideNote(mainNote);
@@ -118,6 +256,7 @@ btnSendTab.addEventListener("click", () => sendTab(false));
 btnSendOptions.addEventListener("click", () => sendTab(true));
 btnOptions.addEventListener("click", () => ext.runtime.openOptionsPage());
 btnLogout.addEventListener("click", async () => {
+  stopGlancing();
   await ask("logout");
   emailInput.value = "";
   show("login");

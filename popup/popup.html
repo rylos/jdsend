@@ -43,6 +43,19 @@
 
       <p id="main-note" class="note" hidden></p>
 
+      <section id="overview" class="overview" hidden>
+        <div class="stats">
+          <span id="speed" class="speed">—</span>
+          <span id="counts" class="muted"></span>
+        </div>
+        <ul id="packages" class="packages"></ul>
+        <div class="controls">
+          <button type="button" id="btn-toggle" class="btn-secondary btn-small" disabled>Start</button>
+          <button type="button" id="btn-stop" class="btn-secondary btn-small" disabled>Stop</button>
+          <button type="button" id="btn-confirm" class="btn-secondary btn-small" hidden>Confirm LinkGrabber</button>
+        </div>
+      </section>
+
       <div class="stack">
         <button type="button" id="btn-send-tab" class="btn-primary">Send this tab</button>
         <button type="button" id="btn-send-options" class="btn-secondary">Send this tab with options…</button>

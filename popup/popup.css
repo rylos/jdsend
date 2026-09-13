@@ -41,3 +41,92 @@ footer .links {
 #main-note {
   margin-top: 8px;
 }
+
+/* The glance at the device */
+.overview {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.stats {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.speed {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.packages {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.packages:empty {
+  display: none;
+}
+
+.package {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  font-size: 12px;
+}
+
+.package .name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.package .detail {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.package .bar {
+  grid-column: 1 / -1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.package .bar > span {
+  display: block;
+  height: 100%;
+  background: var(--muted);
+  transition: width 400ms ease;
+}
+
+.package.running .bar > span {
+  background: var(--accent);
+}
+
+.package.disabled {
+  opacity: 0.55;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 12px;
+}

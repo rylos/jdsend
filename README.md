@@ -4,6 +4,8 @@ Send links to [JDownloader](https://jdownloader.org/) from the browser, through 
 
 Right-click a link, an image, a video, some selected text or the page itself and pick **Send to JDownloader now**: it goes to your JDownloader straight away, wherever it runs, and the toolbar icon says whether it arrived. **Send with options…** opens a small form first, for when the package, the folder, the priority or a password matter. The toolbar button sends the current tab; so does `Alt+Shift+J`.
 
+The toolbar popup is also a glance at the JDownloader: speed, what is downloading and how far along, what waits in the LinkGrabber, with Start/Pause/Stop and a button to confirm the whole LinkGrabber. It asks only while the popup is open.
+
 Sign in once. The extension keeps the keys derived from your password, not the password, and when My.JDownloader forgets the session it renews it on the next send. There is no polling: jdsend talks to api.jdownloader.org only when you send something, and to nowhere else.
 
 Companion of [jdtui](https://github.com/rylos/jdtui), a terminal UI for the same JDownloader.

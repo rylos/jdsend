@@ -121,6 +121,89 @@ function flash(badge, color, title) {
   }, 4000);
 }
 
+// --- a glance at the device ----------------------------------------------------
+
+const PACKAGE_FIELDS = {
+  bytesLoaded: true,
+  bytesTotal: true,
+  enabled: true,
+  eta: true,
+  finished: true,
+  running: true,
+  speed: true,
+  status: true,
+  childCount: true,
+  maxResults: -1,
+  startAt: 0,
+};
+
+/**
+ * What the popup shows while it is open: the download controller's state
+ * and speed, the packages that are not finished, and what waits in the
+ * LinkGrabber. Four device calls, in parallel.
+ */
+async function overview(device) {
+  const call = (path, params) => client.call(() => client.deviceCall(device, path, params));
+  const [state, speed, packages, grabber, collecting] = await Promise.all([
+    call("/downloadcontroller/getCurrentState"),
+    call("/downloadcontroller/getSpeedInBps"),
+    call("/downloadsV2/queryPackages", [PACKAGE_FIELDS]),
+    call("/linkgrabberv2/queryPackages", [{ childCount: true, maxResults: -1, startAt: 0 }]),
+    call("/linkgrabberv2/isCollecting"),
+  ]);
+  const all = Array.isArray(packages) ? packages : [];
+  return {
+    state: typeof state === "string" ? state : "UNKNOWN",
+    speed: typeof speed === "number" ? speed : 0,
+    finished: all.filter((p) => p.finished).length,
+    packages: all
+      .filter((p) => !p.finished)
+      // Running first, then what is waiting, then what is disabled.
+      .sort((a, b) => Number(!!b.running) - Number(!!a.running) || Number(!!b.enabled) - Number(!!a.enabled))
+      .map(({ uuid, name, bytesLoaded, bytesTotal, eta, running, enabled, speed, status, childCount }) => ({
+        uuid,
+        name,
+        bytesLoaded: bytesLoaded ?? 0,
+        bytesTotal: bytesTotal ?? 0,
+        eta: eta ?? -1,
+        running: !!running,
+        enabled: enabled !== false,
+        speed: speed ?? 0,
+        status: status ?? "",
+        childCount: childCount ?? 0,
+      })),
+    grabber: {
+      packages: Array.isArray(grabber) ? grabber.map((p) => p.uuid) : [],
+      links: Array.isArray(grabber) ? grabber.reduce((n, p) => n + (p.childCount ?? 0), 0) : 0,
+      collecting: collecting === true,
+    },
+  };
+}
+
+/** The popup's buttons. */
+async function control(device, action) {
+  const call = (path, params) => client.call(() => client.deviceCall(device, path, params));
+  switch (action) {
+    case "start":
+      return call("/downloadcontroller/start");
+    case "pause":
+      return call("/downloadcontroller/pause", [true]);
+    case "resume":
+      return call("/downloadcontroller/pause", [false]);
+    case "stop":
+      return call("/downloadcontroller/stop");
+    case "confirm": {
+      // Everything in the LinkGrabber: the packages by id, with no link picked out.
+      const grabbed = await call("/linkgrabberv2/queryPackages", [{ maxResults: -1, startAt: 0 }]);
+      const ids = Array.isArray(grabbed) ? grabbed.map((p) => p.uuid) : [];
+      if (ids.length === 0) return;
+      return call("/linkgrabberv2/moveToDownloadlist", [[], ids]);
+    }
+    default:
+      throw new Error(`Unknown action: ${action}`);
+  }
+}
+
 // --- messages from the pages ---------------------------------------------------
 
 async function handle(msg) {
@@ -140,6 +223,10 @@ async function handle(msg) {
       return send(msg.device, msg.text, msg.options);
     case "dialog":
       return openDialog(msg.text, msg.tab);
+    case "overview":
+      return overview(msg.device);
+    case "control":
+      return control(msg.device, msg.action);
     default:
       throw new Error(`Unknown message: ${msg.type}`);
   }

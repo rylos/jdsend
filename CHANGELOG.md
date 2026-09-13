@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0 — 2026-09-13
+
+- The popup shows the JDownloader at a glance: speed, the unfinished packages with their progress, what waits in the LinkGrabber; Start/Pause/Stop and *Confirm LinkGrabber* buttons. It asks the device every two seconds while open, and not at all otherwise.
+
 ## 1.0.1 — 2026-09-13
 
 - The two context menu entries are now *Send to JDownloader now* and *Send with options…*; before, only an ellipsis told them apart.
