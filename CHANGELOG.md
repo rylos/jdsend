@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2 — 2026-09-13
+
+- Status laid out to fit: speed on its own line, only the percentage beside a package name, speed, time left and size under the bar; the popup is a little wider.
+
 ## 1.4.1 — 2026-09-13
 
 - Popup wording: *Send this page*, *Send this page with options…*, *Add links or a container…*.

@@ -1,5 +1,5 @@
 body {
-  width: 340px;
+  width: 370px;
 }
 
 section {
@@ -46,7 +46,7 @@ footer .links {
 .disclosure {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   margin-top: 12px;
   padding: 6px 0;
@@ -86,14 +86,19 @@ footer .links {
 
 .stats {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .speed {
+  font-size: 15px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.stats .muted {
+  line-height: 1.4;
 }
 
 .packages {
@@ -102,7 +107,7 @@ footer .links {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .packages:empty {
@@ -123,10 +128,21 @@ footer .links {
   white-space: nowrap;
 }
 
-.package .detail {
+.package .percent {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.package .detail {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .package .bar {
@@ -163,7 +179,7 @@ footer .links {
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   margin-top: 10px;
 }
 

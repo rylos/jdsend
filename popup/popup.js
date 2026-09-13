@@ -57,26 +57,33 @@ function renderPackage(p) {
   name.className = "name";
   name.textContent = p.name;
   name.title = p.name;
+  // Beside the name only the percentage, so the name keeps its room; the
+  // rest goes under the bar.
+  const pct = p.bytesTotal > 0 ? Math.floor((p.bytesLoaded / p.bytesTotal) * 100) : 0;
+  const percent = document.createElement("span");
+  percent.className = "percent";
+  percent.textContent = p.finished ? "100%" : p.bytesTotal > 0 ? `${pct}%` : "";
   const detail = document.createElement("span");
   detail.className = "detail";
-  const pct = p.bytesTotal > 0 ? Math.floor((p.bytesLoaded / p.bytesTotal) * 100) : 0;
   if (p.running) {
-    detail.textContent = [`${pct}%`, p.speed > 0 ? `${bytes(p.speed)}/s` : "", duration(p.eta)].filter(Boolean).join(" · ");
+    detail.textContent = [p.speed > 0 ? `${bytes(p.speed)}/s` : "", duration(p.eta), `${bytes(p.bytesLoaded)} of ${bytes(p.bytesTotal)}`]
+      .filter(Boolean)
+      .join(" · ");
   } else if (p.finished) {
     const outcome = { extracting: "extracting", queued: "extract queued", extracted: "extracted", failed: "extraction failed" }[p.extraction];
     detail.textContent = `${outcome ?? "done"} · ${bytes(p.bytesTotal)}`;
     if (p.extraction === "failed") li.classList.add("failed");
   } else if (!p.enabled) {
-    detail.textContent = "disabled";
+    detail.textContent = `disabled · ${bytes(p.bytesTotal)}`;
   } else {
-    detail.textContent = p.bytesTotal > 0 ? `${pct}% · waiting` : "waiting";
+    detail.textContent = p.bytesTotal > 0 ? `waiting · ${bytes(p.bytesLoaded)} of ${bytes(p.bytesTotal)}` : "waiting";
   }
   const bar = document.createElement("span");
   bar.className = "bar";
   const fill = document.createElement("span");
-  fill.style.width = `${pct}%`;
+  fill.style.width = `${p.finished ? 100 : pct}%`;
   bar.append(fill);
-  li.append(name, detail, bar);
+  li.append(name, percent, bar, detail);
   return li;
 }
 
