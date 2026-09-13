@@ -20,10 +20,23 @@ const MENU_QUICK = "jdsend-quick";
 const MENU_DIALOG = "jdsend-dialog";
 const CONTEXTS = ["link", "image", "video", "audio", "selection", "page"];
 
-async function installMenus() {
-  await ext.contextMenus.removeAll();
-  ext.contextMenus.create({ id: MENU_QUICK, title: "Send to JDownloader", contexts: CONTEXTS });
-  ext.contextMenus.create({ id: MENU_DIALOG, title: "Send to JDownloader…", contexts: CONTEXTS });
+let installing = null;
+
+// The browser shows both under one "jdsend" entry, so the titles say what
+// differs: nothing to fill in, or a form.
+function installMenus() {
+  // onInstalled and onStartup can both fire at once; two interleaved
+  // removeAll/create sequences would trip over each other's ids.
+  installing ??= (async () => {
+    try {
+      await ext.contextMenus.removeAll();
+      ext.contextMenus.create({ id: MENU_QUICK, title: "Send to JDownloader now", contexts: CONTEXTS });
+      ext.contextMenus.create({ id: MENU_DIALOG, title: "Send with options…", contexts: CONTEXTS });
+    } finally {
+      installing = null;
+    }
+  })();
+  return installing;
 }
 
 ext.runtime.onInstalled.addListener(installMenus);

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 — 2026-09-13
+
+- The two context menu entries are now *Send to JDownloader now* and *Send with options…*; before, only an ellipsis told them apart.
+
 ## 1.0.0 — 2026-09-13
 
 First release.
