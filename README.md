@@ -53,7 +53,9 @@ Commits and tags are signed with the same key.
 
 ## Development
 
-Plain JavaScript, no build step, no dependencies. The source tree is a Chrome extension as it is; `scripts/package.sh` produces the Chrome zip and the Firefox one, whose manifest differs only in the background page and the add-on id.
+Plain JavaScript, no build step, no dependencies. The source tree is a Chrome extension as it is; `scripts/package.sh` produces the Chrome zip and the Firefox one, whose manifest differs only in the background page, the add-on id and the `key` it has no use for.
+
+The `key` in the manifest is the public half of an RSA key, and it is what Chromium derives the extension id from — `mijmmcemhgdiopefdajfbmpcgjaajkna`, the same wherever the folder sits. Without it the id follows the path, and an extension moved to another folder or another machine is a different extension with an empty storage, asking to sign in again. The private half signs a `.crx` and nothing else here, so it stays out of the repository; jdsend is installed unpacked or from the zips, and neither wants it.
 
 ```sh
 node --test                       # the protocol against reference vectors, the client against a fake server

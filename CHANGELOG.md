@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.5 — 2026-09-18
+
+- The extension id is fixed by a public key in the manifest instead of being derived from the folder it is loaded from: the same jdsend on every machine and from any path, so moving the folder no longer means signing in again. The move to this version is the last one that does.
+
 ## 1.4.4 — 2026-09-18
 
 - A session My.JDownloader has forgotten — after the browser or the machine was off for a while — is renewed on the spot instead of being reported as *My.JDownloader refused the e-mail or password*: signed in stays signed in.

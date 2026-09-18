@@ -6,8 +6,9 @@
 #                                   dist/jdsend-<version>-firefox.zip
 #
 # The source tree is laid out for Chrome and loads unpacked as it is. Firefox
-# runs the background as an event page rather than a service worker and wants
-# an add-on id, so its manifest differs in those two places and nowhere else.
+# runs the background as an event page rather than a service worker and names
+# itself by an add-on id rather than by the public key Chromium derives its
+# extension id from, so its manifest differs in those places and nowhere else.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -28,7 +29,8 @@ cp manifest.json dist/chrome/
 (cd dist/chrome && zip -qr "../jdsend-${version}-chrome.zip" .)
 
 stage dist/firefox
-jq '.background = { "scripts": ["js/myjd.js", "background.js"] }
+jq 'del(.key)
+    | .background = { "scripts": ["js/myjd.js", "background.js"] }
     | .browser_specific_settings = {
         "gecko": {
           "id": "jdsend@rylos.github.io",

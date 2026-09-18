@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
   "name": "jdsend",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Send links to JDownloader from the browser, through My.JDownloader.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA43vOlhNncUNp1tmTLB29B9XAgWL6YnakeVfCkJy3fS62OsPLPROIop762Di8qew0CzpY+gb1Z3RvZ2CaXipje0HdHE9qtuh9vchT91h5h4MqBDigwShtoAc0xhq4rnpllWbqh+fSQPcaTxg6GFJm3XI2aqX6m0ua8efwhKwVJkLBP2E22lnpByvYBb2sWW8bp/vmy0gmsYeU1OkTR7wWbvw9Z7EA0r3IsuXbhPB7sEeBJbTI2JpzjHdmD2X/BK6xHVOwF/oIzf7rL81QkTDDk2ieEJC0/LUu2O0/thCkeoK2kp+CCtQI59kloCtRvkZQSQRvi023agUjZZwRiaYq9QIDAQAB",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
