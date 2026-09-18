@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "jdsend",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Send links to JDownloader from the browser, through My.JDownloader.",
   "icons": {
     "16": "icons/icon16.png",

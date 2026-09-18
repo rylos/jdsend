@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.4 — 2026-09-18
+
+- A session My.JDownloader has forgotten — after the browser or the machine was off for a while — is renewed on the spot instead of being reported as *My.JDownloader refused the e-mail or password*: signed in stays signed in.
+
 ## 1.4.3 — 2026-09-13
 
 - The popup no longer scrolls: three packages in the status instead of four, the Start/Pause/Stop buttons above the list, tighter spacing, all within the height a browser gives a popup.

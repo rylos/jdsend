@@ -315,6 +315,17 @@
         if (!(e instanceof ApiError)) throw e;
         // OUTDATED: the request id was not newer than the last one seen.
         if (e.kind === "OUTDATED") return fn();
+        // A request signed with a session key comes back AUTH_FAILED when the
+        // server no longer knows that session: it has no key left to verify
+        // the signature with, so a dead session and a bad signature look the
+        // same to it. It never means the credentials are wrong -- those travel
+        // on /my/connect alone. The regain token died with the session, so
+        // clearing it here sends `renew` straight to a fresh connect.
+        if (e.authFailed && this.session) {
+          this.session = null;
+          await this.renew();
+          return fn();
+        }
         if (e.sessionExpired) {
           await this.renew();
           return fn();

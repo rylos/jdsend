@@ -82,7 +82,9 @@ async function fakeServer({ email, password, devices }) {
       const signed = url.slice(API_URL.length, url.indexOf("&signature="));
       const rid = Number(params.get("rid"));
       const key = u.pathname === "/my/connect" ? loginSecret : session?.serverKey;
-      if (!key) return json(403, { src: "MYJD", type: "TOKEN_INVALID" });
+      // With the session forgotten there is no key left to verify the
+      // signature with, so the server cannot tell it from a bad one.
+      if (!key) return json(403, { src: "MYJD", type: "AUTH_FAILED" });
       // The real server cannot tell an unknown account from a wrong
       // password: both are a signature that does not verify.
       const connecting = u.pathname === "/my/connect";
@@ -128,8 +130,13 @@ async function fakeServer({ email, password, devices }) {
   return {
     fetch,
     log,
+    /** The session is stale but still on record: the regain token can save it. */
     expire: () => {
       if (session) session.alive = false;
+    },
+    /** The session is gone from the server's record, as after a long enough while. */
+    forget: () => {
+      session = null;
     },
   };
 }
@@ -184,6 +191,47 @@ test("a session the server dropped is recovered transparently, secrets last", as
   assert.deepEqual(await client.listDevices(), DEVICES);
   // Refused, tried the regain token, refused, connected from the secrets, retried.
   assert.deepEqual(server.log, ["/my/listdevices", "/my/reconnect", "/my/connect", "/my/listdevices"]);
+});
+
+test("a session the server has forgotten is not taken for a bad password", async () => {
+  const server = await fakeServer({ email: EMAIL, password: PASSWORD, devices: DEVICES });
+  globalThis.fetch = server.fetch;
+  const store = memoryStore();
+  await new Client(store).login(EMAIL, PASSWORD);
+  server.forget();
+  server.log.length = 0;
+
+  // What the popup does after a restart, with the kept session no longer on record.
+  const client = new Client(store);
+  assert.deepEqual(await client.listDevices(), DEVICES);
+  // AUTH_FAILED here is a dead session, not a refused password: the regain
+  // token died with it, so no reconnect is even attempted.
+  assert.deepEqual(server.log, ["/my/listdevices", "/my/connect", "/my/listdevices"]);
+});
+
+test("a device call recovers from a forgotten session too", async () => {
+  const server = await fakeServer({ email: EMAIL, password: PASSWORD, devices: DEVICES });
+  globalThis.fetch = server.fetch;
+  const store = memoryStore();
+  await new Client(store).login(EMAIL, PASSWORD);
+  server.forget();
+
+  const client = new Client(store);
+  const job = { links: "https://example.com/a", autostart: true };
+  assert.deepEqual((await client.addLinks("dev 1", job)).job, job);
+});
+
+test("a password that really is wrong still says so", async () => {
+  const server = await fakeServer({ email: EMAIL, password: PASSWORD, devices: DEVICES });
+  globalThis.fetch = server.fetch;
+  const store = memoryStore();
+  await new Client(store).login(EMAIL, PASSWORD);
+  // The account's password changed elsewhere: the kept secrets no longer open a session.
+  const stored = await store.get();
+  await store.set({ ...stored, loginSecret: hex(await secret(EMAIL, "another", "server")) });
+  server.forget();
+
+  await assert.rejects(new Client(store).listDevices(), (e) => e instanceof ApiError && e.authFailed);
 });
 
 test("a new instance picks the session up from storage", async () => {
