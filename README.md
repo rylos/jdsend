@@ -65,6 +65,8 @@ Everything goes to `https://api.jdownloader.org`, the My.JDownloader relay, encr
 
 Signing in derives two keys from the e-mail and password and keeps them in the browser's extension storage; the password itself is discarded. Those keys open sessions without asking again, which makes them worth as much as the password — as they are in JDownloader itself. *Sign out* forgets them and ends the session on the server.
 
+The whole of it, in so many words: [privacy policy](docs/privacy.md).
+
 ## Verify a download
 
 Every release is built by GitHub Actions and signed with the maintainer's SSH key; the public half is in [`.github/allowed_signers`](.github/allowed_signers), fingerprint `SHA256:A8FoTqTFZrY18WXrAuT1mA2xnmoc4xTDCNIzkQPRjdA`. To check the checksums and, through them, the zips:
