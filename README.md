@@ -1,6 +1,7 @@
 # jdsend
 
 [![Latest release](https://img.shields.io/github/v/release/rylos/jdsend?label=release)](https://github.com/rylos/jdsend/releases/latest)
+[![Firefox Add-ons](https://img.shields.io/amo/v/jdsend?label=firefox%20add-on)](https://addons.mozilla.org/firefox/addon/jdsend/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Send links to [JDownloader](https://jdownloader.org/) from the browser, through My.JDownloader — wherever that JDownloader runs.
@@ -32,11 +33,9 @@ Companion of [jdtui](https://github.com/rylos/jdtui), a terminal UI for the same
 
 ## Install
 
-Grab the zip for your browser from the [latest release](https://github.com/rylos/jdsend/releases/latest).
+**Firefox** — from [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/jdsend/), signed by Mozilla and updated by Firefox itself. On the first sign-in Firefox asks to let jdsend reach `api.jdownloader.org`, the only site it talks to.
 
-**Chrome, Brave, Edge, Vivaldi, Opera** — unzip it somewhere it can stay, open the extensions page (`chrome://extensions`, `brave://extensions`, `edge://extensions`), turn on *Developer mode* and choose *Load unpacked* on the folder. Cloning this repository and loading the checkout works too, and then `git pull` and the ↻ on the extension's card are all an update takes.
-
-**Firefox** — `about:debugging#/runtime/this-firefox` → *Load Temporary Add-on…* on the Firefox zip. Firefox forgets temporary add-ons when it closes; a permanent install needs Mozilla's signature, which is on the list.
+**Chrome, Brave, Edge, Vivaldi, Opera** — grab the Chrome zip from the [latest release](https://github.com/rylos/jdsend/releases/latest), unzip it somewhere it can stay, open the extensions page (`chrome://extensions`, `brave://extensions`, `edge://extensions`), turn on *Developer mode* and choose *Load unpacked* on the folder. Cloning this repository and loading the checkout works too, and then `git pull` and the ↻ on the extension's card are all an update takes.
 
 Then click the toolbar icon and sign in with your My.JDownloader account.
 
